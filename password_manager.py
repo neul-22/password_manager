@@ -51,3 +51,21 @@ class PasswordManager:
         except Exception as e:
             print(f"Error saving to file: {e}")
             return False
+    def load_from_file(self, filename: str = 'password.json')-> bool:
+        try:
+            with open(filename, 'r') as f:
+                data = json.load(f)
+
+                salt = CryptoManager.salt_from_string(data['salt'])
+                self.crypto_manager = CryptoManager(self.master_password, salt)
+                self.credentials = data['credentials']
+                return True
+        except FileNotFoundError:
+            print(f"file {filename} not found")
+            return False
+        except Exception as e:
+            print(f"Error loading from file: {e}")
+            return False
+    
+    def clear_credentials(self):
+        self.credentials = []
