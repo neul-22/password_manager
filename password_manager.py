@@ -23,3 +23,31 @@ class PasswordManager:
         except Exception as e:
             print(f"Error adding credential: {e}")
             return False
+    def get_credentials(self)-> List[Dict[str, str]]:
+        decrypted_credentials = []
+        for cred in self.credentials:
+            try:
+                decrypted_cre = {
+                    'service': cred['service'],
+                    'username': cred['username'],
+                    'password': self.crypto_manager.decrypt(cred['password'])
+                }
+                decrypted_credentials.append(decrypted_cre)
+            except Exception as e:
+                print(f"Error decrypting credential: {e}")
+
+        return decrypted_credentials
+    
+    def save_to_file(self, filename: str = 'passwords.json')-> bool:
+        try:
+            data = {
+                'salt': self.crypto_manager.get_salt(),
+                'credentials': self.credentials
+            }
+            with open(filename, 'w') as f:
+                json.dump(data, f, indent = 2)
+
+            return True
+        except Exception as e:
+            print(f"Error saving to file: {e}")
+            return False
